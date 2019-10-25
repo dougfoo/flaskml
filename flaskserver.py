@@ -4,7 +4,17 @@ from sklearn.externals import joblib
 
 app = Flask(__name__)
 models = {}
-    
+models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
+models['ISO'] = joblib.load('models/sklearn_diamond_iso_model.pkl')
+models['LR3'] = joblib.load('models/sklearn_diamond_regr_model.pkl')
+models['RF'] = joblib.load('models/sklearn_diamond_rforest_model.pkl')
+print('loaded models', models)
+
+@app.route('/', methods=['GET'])
+def base():
+	return '<div>Welcome to the Flask ML Runner -- paths available:  /models/<modelName> where modelName is one of the registered models:<P/><P/><PRE> ' +str(models)+'</PRE></div>'
+
+
 @app.route('/models/<model>', methods=['POST'])
 def predict(model):
 	if (models.get(model) is None):
@@ -17,9 +27,4 @@ def predict(model):
 	return y_hat
 
 if __name__ == '__main__':
-    models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
-    models['ISO'] = joblib.load('models/sklearn_diamond_iso_model.pkl')
-    models['LR3'] = joblib.load('models/sklearn_diamond_regr_model.pkl')
-    models['RF'] = joblib.load('models/sklearn_diamond_rforest_model.pkl')
-    print('loaded models', models)
-    app.run(debug=True,host='0.0.0.0')
+    app.run(debug=True)
