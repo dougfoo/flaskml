@@ -8,7 +8,7 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnectionId: '131ba7f4-029d-4c56-acaf-8437f01bcd8f'
+  azureServiceConnectionId: '71a8bea1-c2c2-4c2f-9c0f-184f9937f821'
   
   # Web app name
   webAppName: 'flaskmli'
@@ -39,9 +39,11 @@ stages:
       displayName: 'Use Python $(pythonVersion)'
     
     - script: |
+        python -m venv antenv
+        source antenv/bin/activate
         python -m pip install --upgrade pip
         pip install setup
-        pip install --user -r requirements.txt
+        pip install -r requirements.txt
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
 
