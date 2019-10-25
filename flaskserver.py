@@ -14,10 +14,10 @@ def predict(model):
 	j_data = np.array(request.get_json()['data'])
 	y_hat = np.array2string(models[model].predict(j_data))
 	print('input: ',j_data, ', results:', y_hat)
-	return jsonify(y_hat)
+	return y_hat
 
 if __name__ == '__main__':
-    models['XGB'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
+    models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
     models['ISO'] = joblib.load('models/sklearn_diamond_iso_model.pkl')
     models['LR3'] = joblib.load('models/sklearn_diamond_regr_model.pkl')
     models['RF'] = joblib.load('models/sklearn_diamond_rforest_model.pkl')
