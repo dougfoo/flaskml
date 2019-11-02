@@ -1,6 +1,13 @@
 from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
 from sklearn.externals import joblib
+import azureml.train.automl
+
+#
+# XGB2, ISO, LR3, RF are all from sklearn and have common input formats (18 features onehot)
+# LBGM has 4 features not onehot, [carat, color, cut, clarity]
+#
+
 
 app = Flask(__name__)
 models = {}
@@ -8,6 +15,8 @@ models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
 models['ISO'] = joblib.load('models/sklearn_diamond_iso_model.pkl')
 models['LR3'] = joblib.load('models/sklearn_diamond_regr_model.pkl')
 models['RF'] = joblib.load('models/sklearn_diamond_rforest_model.pkl')
+models['LBGM'] = joblib.load('models/az_automodel2.pkl')
+
 print('loaded models', models)
 
 @app.route('/', methods=['GET'])
