@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
 from sklearn.externals import joblib
-import azureml.train.automl
+#mport azureml.train.automl
 
 #
 # XGB2, ISO, LR3, RF are all from sklearn and have common input formats (18 features onehot)
