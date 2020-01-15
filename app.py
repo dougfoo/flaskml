@@ -23,7 +23,7 @@ print('loaded models', models)
 def base():
 	return '<div>Welcome to the Flask ML Runner -- paths available:  /models/<modelName> where modelName is one of the registered models:<P/><P/><PRE> ' +str(models)+'</PRE></div>'
 
-
+# ML diamond predict models
 @app.route('/models/<model>', methods=['POST'])
 def predict(model):
 	if (models.get(model) is None):
@@ -34,6 +34,24 @@ def predict(model):
 	y_hat = np.array2string(models[model].predict(j_data))
 	print('input: ',j_data, ', results:', y_hat)
 	return y_hat
+
+
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+analyser = SentimentIntensityAnalyzer()
+
+# NLP sentiment + evaluators
+@app.route('/nlp/sa/<model>', methods=['GET'])
+def sa_predict(model):
+	if (model == 'vader'):
+		sentence = request.args.get('data')
+		score = analyser.polarity_scores(sentence)
+		print("{:-<40} {}".format(sentence, str(score)))
+
+		return str(score)
+	else:
+		return str('No Model exists for '+model)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
