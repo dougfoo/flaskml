@@ -95,8 +95,8 @@ def azure_sentiment(text):
             ]}
     
     azure_key = 'd6c00eb74e58455187125aa6a97fd976' # Update here
-#    azure_endpoint = 'https://textsentimentanalyzer.cognitiveservices.azure.com/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
-    azure_endpoint = 'https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
+    azure_endpoint = 'https://textsentimentanalyzer.cognitiveservices.azure.com/text/analytics/v2.1/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
+#    azure_endpoint = 'https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
 
     assert azure_key
     sentiment_azure = azure_endpoint + '/sentiment'
