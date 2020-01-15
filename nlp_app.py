@@ -17,28 +17,46 @@ def base():
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 analyser = SentimentIntensityAnalyzer()
 from textblob import TextBlob 
+import json
 
 # NLP sentiment + evaluators
 @app.route('/nlp/sa/<model>', methods=['GET'])
 def sa_predict(model):
 	sentence = request.args.get('data')
+	print(sentence)
 
-	if (model == 'vader'):
-		score = analyser.polarity_scores(sentence)
-		print("{:-<40} {}".format(sentence, str(score)))
-		return str(score)
+	if (model == 'all'):
+		data = {}
+		data['input'] = sentence
+		data['vader'] = vader(sentence)
+		data['textblob'] = textblob(sentence)
+		data['azure'] = azure_sentiment(sentence)
+
+		return json.dumps(data)
+	elif (model == 'azure'):		
+		return azure_sentiment(sentence)
+	elif (model == 'vader'):
+		return vader(sentence)
 	elif (model == 'textblob'):
-		# create TextBlob object of passed tweet text 
-		analysis = TextBlob(sentence) 
-		# set sentiment 
-		if analysis.sentiment.polarity > 0: 
-			return 'positive ' + str(analysis.sentiment.polarity)
-		elif analysis.sentiment.polarity == 0: 
-			return 'neutral 0'
-		else: 
-			return 'negative '+ str(analysis.sentiment.polarity)
+		return textblob(sentence)
 	else:
 		return 'No Model exists for '+model
+
+def textblob(sentence):
+	# create TextBlob object of passed tweet text 
+	analysis = TextBlob(sentence) 
+	# set sentiment 
+	if analysis.sentiment.polarity > 0: 
+		return 'positive ' + str(analysis.sentiment.polarity)
+	elif analysis.sentiment.polarity == 0: 
+		return 'neutral 0'
+	else: 
+		return 'negative '+ str(analysis.sentiment.polarity)
+
+def vader(sentence):
+    score = analyser.polarity_scores(sentence)
+    print("{:-<40} {}".format(sentence, str(score)))
+    return str(score)
 
 
 
@@ -69,14 +87,17 @@ def gc_sentiment(text):
 
 ## azure service calls
 ##
+
 def azure_sentiment(text):
     import requests
     documents = { 'documents': [
             { 'id': '1', 'text': text }
             ]}
     
-    azure_key = '[your key]' # Update here
-    azure_endpoint = '[your endpoint]' # Update here
+    azure_key = 'd6c00eb74e58455187125aa6a97fd976' # Update here
+#    azure_endpoint = 'https://textsentimentanalyzer.cognitiveservices.azure.com/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
+    azure_endpoint = 'https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
+
     assert azure_key
     sentiment_azure = azure_endpoint + '/sentiment'
     
