@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -33,6 +34,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _submit() async {
+    print('submit clicked');
+//    var url = 'http://localhost:5000/nlp/sa/all?data=this%20is%20the%20best%20ever%20!!!';
+    var url = 'http://worldtimeapi.org/api/timezone';
+    var response = await http.get(url);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +74,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   //fillColor: Colors.green
                 )
               ),
-              Padding(padding: EdgeInsets.only(top: 50.0)),
+              FlatButton(
+                child: Text('Go'),
+                onPressed: _submit,
+              ),
+              Padding(padding: EdgeInsets.only(top: 22.0)),
               Text('Results',
                 style: new TextStyle(color: Colors.blue, fontSize: 15.0),),
               DataTable(
