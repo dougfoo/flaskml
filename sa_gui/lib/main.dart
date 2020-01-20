@@ -36,12 +36,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submit() async {
     print('submit clicked');
-//    var url = 'http://localhost:5000/nlp/sa/all?data=this%20is%20the%20best%20ever%20!!!';
-    var url = 'http://worldtimeapi.org/api/timezone';
-    var response = await http.get(url);
+    // need to swap out hostname
+    var host = '10.0.2.2';
+    var response = await http.get('http://'+host+':5000/nlp/sa/all?data='+inputController.text);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
+
+  final inputController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: new TextStyle(color: Colors.blue, fontSize: 25.0),),
               Padding(padding: EdgeInsets.only(top: 50.0)),
               TextFormField(
+                controller: inputController,
                 maxLines: 3,
                 decoration: new InputDecoration(
                   labelText: "New Text to Analyze",
