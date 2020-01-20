@@ -62,77 +62,89 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(padding: EdgeInsets.only(top: 20.0)),
               Text('Sentiment Multi Analyzer',
                 style: new TextStyle(color: Colors.blue, fontSize: 25.0),),
-              Padding(padding: EdgeInsets.only(top: 50.0)),
-              TextFormField(
-                controller: inputController,
-                maxLines: 3,
-                decoration: new InputDecoration(
-                  labelText: "New Text to Analyze",
-                  fillColor: Colors.white,
-                  border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(25.0),
-                    borderSide: new BorderSide(
+              Padding(padding: EdgeInsets.only(top: 25.0)),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: inputController,
+                  maxLines: 3,
+                  decoration: new InputDecoration(
+                    labelText: "New Text to Analyze",
+                    fillColor: Colors.white,
+                    border: new OutlineInputBorder(
+                      borderRadius: new BorderRadius.circular(25.0),
+                      borderSide: new BorderSide(
+                      ),
                     ),
-                  ),
-                  //fillColor: Colors.green
-                )
+                    //fillColor: Colors.green
+                  )
+                ),
               ),
-              FlatButton(
+               FlatButton (
                 child: Text('Go'),
+                color: Colors.blue,
+                textColor: Colors.white,
                 onPressed: _submit,
               ),
+              Divider(),
               Padding(padding: EdgeInsets.only(top: 22.0)),
               Text('Results',
                 style: new TextStyle(color: Colors.blue, fontSize: 15.0),),
-              DataTable(
-                columns: [
-                  DataColumn(label: Text('Model')),
-                  DataColumn(label: Text('Raw Score'), numeric: true),
-                  DataColumn(label: Text('Sentiment')),
-                ],
-                rows: [
-                  DataRow(
-                    cells: [
-                      DataCell(
-                        Text('nltk'),
+              Container(
+                margin: new EdgeInsets.all(10.0),
+                color: Colors.green[50],
+                child: Column (
+                  children: <Widget>[
+                    Text('input text goes here -- inputController.text needs to be a refreshed state on click',
+                      style: new TextStyle(color: Colors.orange, fontSize: 15.0),),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: 600),
+                      child: DataTable(
+                          columns: [
+                            DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0), )),
+                            DataColumn(label: Text('Raw Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),), numeric: true),
+                            DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
+                            DataColumn(label: Text('ModelRef', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
+                          ],
+                          rows: [
+                            DataRow(
+                              cells: [
+                                DataCell(
+                                  Text('nltk'),
+                                ),
+                                DataCell(
+                                  Text('0.88'),
+                                ),
+                                DataCell(
+                                  Text('Positive'),
+                                ),
+                                DataCell(
+                                  Text('link'),
+                                ),
+                              ],
+                            ),
+                            DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text('Vader'),
+                                  ),
+                                  DataCell(
+                                    Text('0.81'),
+                                  ),
+                                  DataCell(
+                                    Text('Positive'),
+                                  ),
+                                  DataCell(
+                                    Text('link'),
+                                  ),
+                                ]
+                            ),
+                          ]
                       ),
-                      DataCell(
-                        Text('0.88'),
-                      ),
-                      DataCell(
-                        Text('Positive'),
-                      ),
-                    ],
-                  ),
-                  DataRow(
-                      cells: [
-                        DataCell(
-                          Text('Vader'),
-                        ),
-                        DataCell(
-                          Text('0.81'),
-                        ),
-                        DataCell(
-                          Text('Positive'),
-                        ),
-                      ]
-                  ),
-                  DataRow(
-                      cells: [
-                        DataCell(
-                          Text('BERT'),
-                        ),
-                        DataCell(
-                          Text('0.92'),
-                        ),
-                        DataCell(
-                          Text('Very Positive'),
-                        ),
-                      ]
-                  )
-                ]
+                    ),
+                  ],
+                ),
               )
-
             ],
           ),
         ),
