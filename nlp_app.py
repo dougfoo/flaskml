@@ -3,6 +3,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json
 from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
+import requests
 from sklearn.externals import joblib
 
 app = Flask(__name__)
@@ -17,67 +18,87 @@ def base():
     return '<div>Welcome to the Flask ML Runner -- paths available:  /models/<modelName> where modelName is one of the registered models:<P/><P/><PRE> ' + str(models)+'</PRE></div>'
 
 # NLP sentiment analysis section
-
-
-analyser = SentimentIntensityAnalyzer()
-
-# NLP sentiment + evaluators
+# merge to common format:
+#  {
+#    "input": "I love the world so much",
+#    "results": [
+#       {
+#        "model": "AzureML",
+#        "nScore": 0.8,  # -1.0 to +1.0 w/ 1.0 being positive, -1.0 negative, 0.0 neutral
+#        "rScore": .5,  # raw results in case it is -0.5 to 0.5 or -1 to +1
+#        "extra": "na optional text only"#
+#       },
+#       ...
+#     ]
+#  }
 @app.route('/nlp/sa/<model>', methods=['GET'])
 def sa_predict(model):
-    sentence = request.args.get('data')
-    print(sentence)
+	sentence = request.args.get('data')
+	print(sentence)
 
-    if (model == 'all'):
-        data = {}
-        data['input'] = sentence
-        data['vader'] = vader(sentence)
-        data['textblob'] = textblob(sentence)
-        data['azure'] = azure_sentiment(sentence)
-        data['google'] = gcp_sentiment(sentence)
+	resp = {}
+	resp['input'] = sentence
 
-        return json.dumps(data)
-    elif (model == 'azure'):
-        return azure_sentiment(sentence)
-    elif (model == 'vader'):
-        return vader(sentence)
-    elif (model == 'textblob'):
-        return textblob(sentence)
-    elif (model == 'google'):
-        return gcp_sentiment(sentence)
-    else:
-        return 'No Model exists for '+model
-
+	if (model == 'all'):
+		data = {}
+		data['input'] = sentence
+		data['vader'] = vader(sentence)
+		data['textblob'] = textblob(sentence)
+		data['azure'] = azure_sentiment(sentence)
+		data['google'] = gcp_sentiment(sentence)
+		resp['results'] = data
+		return json.dumps(resp)
+	elif (model == 'azure'):
+		return azure_sentiment(sentence)
+	elif (model == 'vader'):
+		return vader(sentence)
+	elif (model == 'textblob'):
+		return textblob(sentence)
+	elif (model == 'google'):
+		return gcp_sentiment(sentence)
+	else:
+		return 'No Model exists for '+model
 
 def textblob(sentence):
-    # create TextBlob object of passed tweet text
-    analysis = TextBlob(sentence)
-    # set sentiment
-    if analysis.sentiment.polarity > 0:
-        return 'positive ' + str(analysis.sentiment.polarity)
-    elif analysis.sentiment.polarity == 0:
-        return 'neutral 0'
-    else:
-        return 'negative ' + str(analysis.sentiment.polarity)
-
+	resp = {}
+	resp['model'] = 'TextBlob'
+	resp['extra'] = 'https://textblob.readthedocs.io/en/dev/ - models returns -1 to +1'
+	# create TextBlob object of passed tweet text
+	analysis = TextBlob(sentence)
+	resp['rScore'] = analysis.sentiment.polarity
+	resp['nScore'] = analysis.sentiment.polarity
+	# set sentiment
+	return resp
 
 def vader(sentence):
-    score = analyser.polarity_scores(sentence)
-    print("{:-<40} {}".format(sentence, str(score)))
-    return str(score)
+	resp = {}
+	resp['model'] = 'Vader'
+	resp['extra'] = 'https://pypi.org/project/vaderSentiment/ - model returns -1 to +1'
+	analyser = SentimentIntensityAnalyzer()
+	score = analyser.polarity_scores(sentence)['compound'] 
+	resp['rScore'] = score
+	resp['nScore'] = score
+	return resp
 
 
 # azure and google copies from:  https://www.pingshiuanchua.com/blog/post/simple-sentiment-analysis-python?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
 
 # google cloud
 def gcp_sentiment(text):
-    import requests
+	resp = {}
+	resp['model'] = 'Google NLP'
+	resp['extra'] = 'https://cloud.google.com/natural-language/ - model returns -1 to +1'
 
-    gcp_url = "https://language.googleapis.com/v1/documents:analyzeSentiment?key=AIzaSyBN-SLv7YPAMARDo2eQl7Y_yyy84xpWcHU"
+	gcp_url = "https://language.googleapis.com/v1/documents:analyzeSentiment?key=AIzaSyBN-SLv7YPAMARDo2eQl7Y_yyy84xpWcHU"
 
-    document = {'document': {'type': 'PLAIN_TEXT', 'content': text}, 'encodingType':'UTF8'}
-    response = requests.post(gcp_url, json=document)
-    sentiments = response.json()
-    return sentiments
+	document = {'document': {'type': 'PLAIN_TEXT', 'content': text}, 'encodingType':'UTF8'}
+	response = requests.post(gcp_url, json=document)
+	sentiments = response.json()
+	score = sentiments['documentSentiment']['score']
+
+	resp['rScore'] = score
+	resp['nScore'] = score 
+	return resp
 
 # from tqdm import tqdm # This is an awesome package for tracking for loops
 # import pandas as pd
@@ -92,23 +113,26 @@ def gcp_sentiment(text):
 ##
 
 def azure_sentiment(text):
-    import requests
-    documents = {'documents': [
-        {'id': '1', 'text': text}
-    ]}
+	resp = {}
+	resp['model'] = 'Azure NLP'
+	resp['extra'] = 'https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/ - model returns 0 to 1'
 
-    azure_key = 'd6c00eb74e58455187125aa6a97fd976'  # Update here
-    # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
-    azure_endpoint = 'https://textsentimentanalyzer.cognitiveservices.azure.com/text/analytics/v2.1/'
-#    azure_endpoint = 'https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/' # Update here  https://eastus.api.cognitive.microsoft.com/text/analytics/v2.1/sentiment
+	documents = {'documents': [
+		{'id': '1', 'text': text}
+	]}
 
-    assert azure_key
-    sentiment_azure = azure_endpoint + '/sentiment'
+	azure_key = 'd6c00eb74e58455187125aa6a97fd976'  # Update here
+	azure_endpoint = 'https://textsentimentanalyzer.cognitiveservices.azure.com/text/analytics/v2.1/'
+	sentiment_azure = azure_endpoint + '/sentiment'
 
-    headers = {"Ocp-Apim-Subscription-Key": azure_key}
-    response = requests.post(sentiment_azure, headers=headers, json=documents)
-    sentiments = response.json()
-    return sentiments
+	headers = {"Ocp-Apim-Subscription-Key": azure_key}
+	response = requests.post(sentiment_azure, headers=headers, json=documents)
+	score = response.json()['documents'][0]['score']
+
+	resp['rScore'] = score
+	resp['nScore'] = 2 * (score - 0.5) 
+
+	return resp
 
 # azure_results = [azure_sentiment(text) for text in dataset]
 # azure_score = [row['documents'][0]['score'] for row in azure_results] # Extract score from the dict

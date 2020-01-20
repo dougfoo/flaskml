@@ -44,13 +44,19 @@ class _MyHomePageState extends State<MyHomePage> {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
     print(inputController.text);
-
-
+    
+    dataList.add({"Model": "Foo", "Raw Score": ".67", "Sentiment": "Positive", "More Info": "Link to Google"});
 
     setState(() { });  // drive update to GUI
   }
 
   final inputController = TextEditingController();
+
+  final List<Map<String, String>> dataList = [
+    {"Model": "BERT", "Raw Score": "1", "Sentiment": "Very Positive", "More Info": "Link to BERT"},
+    {"Model": "Azure", "Raw Score": ".8", "Sentiment": "Postitive", "More Info": "Link to MSFT"},
+    {"Model": "Google", "Raw Score": ".7", "Sentiment": "Positive", "More Info": "Link to Google"},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -111,40 +117,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
                             DataColumn(label: Text('More Info', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
                           ],
-                          rows: [
-                            DataRow(
-                              cells: [
-                                DataCell(
-                                  Text('nltk'),
-                                ),
-                                DataCell(
-                                  Text('0.88'),
-                                ),
-                                DataCell(
-                                  Text('Positive'),
-                                ),
-                                DataCell(
-                                  Text('link'),
-                                ),
-                              ],
-                            ),
-                            DataRow(
-                                cells: [
-                                  DataCell(
-                                    Text('Vader'),
-                                  ),
-                                  DataCell(
-                                    Text('0.81'),
-                                  ),
-                                  DataCell(
-                                    Text('Positive'),
-                                  ),
-                                  DataCell(
-                                    Text('link'),
-                                  ),
-                                ]
-                            ),
-                          ]
+                          rows:
+                            dataList // Loops through dataColumnText, each iteration assigning the value to element
+                              .map(((element) => DataRow(
+                                cells: <DataCell>[
+                                  DataCell(Text(element["Model"])), //Extracting from Map element the value
+                                  DataCell(Text(element["Raw Score"])),
+                                  DataCell(Text(element["Sentiment"])),
+                                  DataCell(Text(element["More Info"])),
+                                ],
+                              )),
+                            ).toList(),
                       ),
                     ),
                     Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
