@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,6 +43,11 @@ class _MyHomePageState extends State<MyHomePage> {
     var response = await http.get('http://'+host+':5000/nlp/sa/all?data='+inputController.text);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
+    print(inputController.text);
+
+
+
+    setState(() { });  // drive update to GUI
   }
 
   final inputController = TextEditingController();
@@ -95,8 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.green[50],
                 child: Column (
                   children: <Widget>[
-                    Text('input text goes here -- inputController.text needs to be a refreshed state on click',
-                      style: new TextStyle(color: Colors.orange, fontSize: 15.0),),
                     ConstrainedBox(
                       constraints: BoxConstraints(minWidth: 600),
                       child: DataTable(
@@ -104,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0), )),
                             DataColumn(label: Text('Raw Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),), numeric: true),
                             DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
-                            DataColumn(label: Text('ModelRef', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
+                            DataColumn(label: Text('More Info', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
                           ],
                           rows: [
                             DataRow(
@@ -142,6 +147,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           ]
                       ),
                     ),
+                    Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
+                    Text(inputController.text, style: new TextStyle(color: Colors.orange, fontStyle: FontStyle.italic, fontSize: 15.0),),
                   ],
                 ),
               )
