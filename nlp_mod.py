@@ -6,19 +6,9 @@ import numpy as np
 import requests
 from flask_cors import CORS
 from sklearn.externals import joblib
+from __main__ import app   # hack to embed modules -- causes a double load
 
-app = Flask(__name__)
-CORS(app)
-
-models = {}
-# models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
-
-print('loaded models', models)
-
-
-@app.route('/', methods=['GET'])
-def base():
-    return '<div>Welcome to the Flask ML Runner -- paths available:  /models/<modelName> where modelName is one of the registered models:<P/><P/><PRE> ' + str(models)+'</PRE></div>'
+print('loading nlp_mod - sentiment analysis modules /nlp/sa/all?data=query')
 
 # NLP sentiment analysis section
 # merge to common format:
@@ -83,9 +73,10 @@ def vader(sentence):
 	return resp
 
 
-# azure and google copies from:  https://www.pingshiuanchua.com/blog/post/simple-sentiment-analysis-python?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
+# azure and google inspired from:  https://www.pingshiuanchua.com/blog/post/simple-sentiment-analysis-python?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
 
 # google cloud
+##
 def gcp_sentiment(text):
 	resp = {}
 	resp['model'] = 'Google NLP'
@@ -102,18 +93,8 @@ def gcp_sentiment(text):
 	resp['nScore'] = score 
 	return resp
 
-# from tqdm import tqdm # This is an awesome package for tracking for loops
-# import pandas as pd
-# gc_results = [gc_sentiment(row) for row in tqdm(dataset, ncols = 100)]
-# gc_score, gc_magnitude = zip(*gc_results) # Unpacking the result into 2 lists
-# gc = list(zip(dataset, gc_score, gc_magnitude))
-# columns = ['text', 'score', 'magnitude']
-# gc_df = pd.DataFrame(gc, columns = columns)
-
-
 # azure service calls
 ##
-
 def azure_sentiment(text):
 	resp = {}
 	resp['model'] = 'Azure NLP'
@@ -135,13 +116,3 @@ def azure_sentiment(text):
 	resp['nScore'] = 2 * (score - 0.5) 
 
 	return resp
-
-# azure_results = [azure_sentiment(text) for text in dataset]
-# azure_score = [row['documents'][0]['score'] for row in azure_results] # Extract score from the dict
-# azure = list(zip(dataset, azure_score))
-# columns = ['text', 'score']
-# azure_df = pd.DataFrame(azure, columns = columns)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

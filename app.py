@@ -1,6 +1,8 @@
 from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
 from sklearn.externals import joblib
+from flask_cors import CORS
+
 #mport azureml.train.automl
 
 #
@@ -8,8 +10,9 @@ from sklearn.externals import joblib
 # LBGM has 4 features not onehot, [carat, color, cut, clarity]
 #
 
-
 app = Flask(__name__)
+CORS(app)
+
 models = {}
 models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
 models['ISO'] = joblib.load('models/sklearn_diamond_iso_model.pkl')
@@ -35,23 +38,8 @@ def predict(model):
 	print('input: ',j_data, ', results:', y_hat)
 	return y_hat
 
-
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-analyser = SentimentIntensityAnalyzer()
-
-# NLP sentiment + evaluators
-@app.route('/nlp/sa/<model>', methods=['GET'])
-def sa_predict(model):
-	if (model == 'vader'):
-		sentence = request.args.get('data')
-		score = analyser.polarity_scores(sentence)
-		print("{:-<40} {}".format(sentence, str(score)))
-
-		return str(score)
-	else:
-		return str('No Model exists for '+model)
-
-
+# sentiment analysis module /nlp/sa/
+import nlp_mod
 
 if __name__ == '__main__':
     app.run(debug=True)
