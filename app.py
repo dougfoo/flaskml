@@ -5,7 +5,7 @@ from flask_cors import CORS
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json
-from flask import Flask, request, redirect, url_for, flash, jsonify, render_template
+from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
 import requests
 #mport azureml.train.automl
@@ -15,7 +15,7 @@ import requests
 # LBGM has 4 features not onehot, [carat, color, cut, clarity]
 #
 
-app = Flask(__name__, static_url_path='/web')
+app = Flask(__name__)
 CORS(app)
 
 models = {}
@@ -30,10 +30,6 @@ print('loaded models', models)
 @app.route('/', methods=['GET'])
 def base():
 	return '<div>Welcome to the Flask ML Runner -- paths available:  /models/<modelName> where modelName is one of the registered models:<P/><P/><PRE> ' +str(models)+'</PRE></div>'
-
-@app.route("/web")
-def index():
-   return render_template("sa_gui/web/index.html")
 
 # ML diamond predict models
 @app.route('/models/<model>', methods=['POST'])

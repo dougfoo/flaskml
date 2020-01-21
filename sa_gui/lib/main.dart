@@ -64,12 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submit() async {
     print('submit clicked');
-    FocusScope.of(context).requestFocus(FocusNode());
-
     dataList.clear();
     // need to swap out hostname
     //   var host = '10.0.2.2:5000';   // for android emulator
-//    var host = '127.0.0.1:5000';   // for web testing
+    //   var host = '127.0.0.1:5000';   // for web testing
     var host = 'flaskmli.azurewebsites.net';   // prod host
     var response = await http.get('http://'+host+'/nlp/sa/all?data='+inputController.text);
     print('Response status: ${response.statusCode}');
@@ -84,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
     results.forEach((result) {
       dataList.add(result);
     });
-
     setState(() { });  // drive update to GUI
   }
 
@@ -116,11 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: TextFormField(
                   controller: inputController,
                   maxLines: 3,
-                  onFieldSubmitted: (term) {
-                    print('what is this '+ term);
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                  textInputAction: TextInputAction.done,
                   decoration: new InputDecoration(
                     labelText: "New Text to Analyze",
                     fillColor: Colors.white,
@@ -129,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       borderSide: new BorderSide(
                       ),
                     ),
-                  //fillColor: Colors.green
+                    //fillColor: Colors.green
                   )
                 ),
               ),
@@ -149,32 +141,32 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column (
                   children: <Widget>[
                     ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 250),
+                      constraints: BoxConstraints(minWidth: 370),
                       child: DataTable(
                           columns: [
                             DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
-                            DataColumn(label: Text('Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),), numeric: true),
+                            DataColumn(label: Text('Raw', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),), numeric: true),
+                            DataColumn(label: Text('Adj', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
                             DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
-                            DataColumn(label: Text('?', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+                            DataColumn(label: Text('Extra', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
                           ],
                           rows:
                             dataList // Loops through dataColumnText, each iteration assigning the value to element
                               .map(((element) => DataRow(
                                 cells: <DataCell>[
                                   DataCell(Text(element["model"])), //Extracting from Map element the value
+                                  DataCell(Text(element["rScore"].toStringAsFixed(4))),
                                   DataCell(Text(element["nScore"].toStringAsFixed(4))),
                                   DataCell(Text(getSentiment(element["nScore"]))),
                                   DataCell(
-                                    IconButton(
-                                      icon: Icon(Icons.help),
-                                      color: Colors.green,
-                                      tooltip: 'Get more info on this model',
-                                      onPressed: _launchURL,
-                                    )
-                                  )
+                                      GestureDetector(
+                                          child: Text("Link", style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
+                                          onTap: _launchURL
+                                      )
+                                  ),
                                 ],
-                            )),
-                          ).toList(),
+                              )),
+                            ).toList(),
                       ),
                     ),
                     Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),

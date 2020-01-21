@@ -1,19 +1,14 @@
-# azureml-automl-core>=1.0.83.1
-# azureml-dataprep>=1.1.38
-# azureml-dataprep-native>=13.2.0
-# distro>=1.4.0
-# dotnetcore2>=2.1.11
+automl==2.9.9
 azureml-automl-core==1.0.72.1
 azureml-train-automl==1.0.72
-# azureml-sdk>=1.0.83
-Flask==1.1.1
-Flask-Cors==3.0.8
+lightgbm==2.0.12
+flask==1.0.2
 google==2.0.3
 google-cloud==0.34.0
-json5==0.8.5
-lightgbm==2.3.1
-numpy==1.16.5
-requests==2.22.0
-scikit-learn==0.21.3
+numpy==1.16.4
+numpydoc==0.8.0
+scikit-image==0.14.2
+scikit-learn==0.20.3
 vaderSentiment==3.2.1
-virtualenv==16.7.9
+textblob==0.15.3
+flask-cors==3.0.8
