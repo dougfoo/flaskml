@@ -15,7 +15,7 @@ import requests
 # LBGM has 4 features not onehot, [carat, color, cut, clarity]
 #
 
-app = Flask(__name__, static_url_path='/web')
+app = Flask(__name__)
 CORS(app)
 
 models = {}
