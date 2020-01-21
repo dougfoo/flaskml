@@ -1,14 +1,12 @@
 from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json
-from flask import Flask, request, redirect, url_for, flash, jsonify
+from flask import Flask, request, redirect, url_for, flash, jsonify, render_template
 import numpy as np
 import requests
 from flask_cors import CORS
 from sklearn.externals import joblib
-from __main__ import app   # hack to embed modules -- causes a double load
-
-print('loading nlp_mod - sentiment analysis modules /nlp/sa/all?data=query')
+# from __main__ import app   # hack to embed modules -- causes a double load / breaks on azure deploy
 
 # NLP sentiment analysis section
 # merge to common format:
@@ -24,6 +22,8 @@ print('loading nlp_mod - sentiment analysis modules /nlp/sa/all?data=query')
 #       ...
 #     ]
 #  }
+print('loading nlp_mod - sentiment analysis modules /nlp/sa/all?data=query')
+
 @app.route('/nlp/sa/<model>', methods=['GET'])
 def sa_predict(model):
 	sentence = request.args.get('data')
