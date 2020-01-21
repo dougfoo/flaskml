@@ -66,9 +66,10 @@ class _MyHomePageState extends State<MyHomePage> {
     print('submit clicked');
     dataList.clear();
     // need to swap out hostname
-    var host = '10.0.2.2';   // for android emulator
-    //    var host = '127.0.0.1';   // for web testing
-    var response = await http.get('http://'+host+':5000/nlp/sa/all?data='+inputController.text);
+    //   var host = '10.0.2.2:5000';   // for android emulator
+    //   var host = '127.0.0.1:5000';   // for web testing
+    var host = 'flaskmli.azurewebsites.net';   // prod host
+    var response = await http.get('http://'+host+'/nlp/sa/all?data='+inputController.text);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
     print(inputController.text);
