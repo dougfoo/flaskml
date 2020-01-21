@@ -1,7 +1,7 @@
 azureml-automl-core>=1.0.83.1
-#azureml-dataprep>=1.1.38
-#azureml-dataprep-native>=13.2.0
-#distro>=1.4.0
+# azureml-dataprep>=1.1.38
+# azureml-dataprep-native>=13.2.0
+# distro>=1.4.0
 # dotnetcore2>=2.1.11
 Flask==1.1.1
 Flask-Cors==3.0.8
