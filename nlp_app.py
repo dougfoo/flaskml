@@ -4,9 +4,12 @@ import json
 from flask import Flask, request, redirect, url_for, flash, jsonify
 import numpy as np
 import requests
+from flask_cors import CORS
 from sklearn.externals import joblib
 
 app = Flask(__name__)
+CORS(app)
+
 models = {}
 # models['XGB2'] = joblib.load('models/sklearn_diamond_xgb_model.pkl')
 
@@ -38,26 +41,25 @@ def sa_predict(model):
 
 	resp = {}
 	resp['input'] = sentence
+	resp['results'] = []
 
 	if (model == 'all'):
-		data = {}
-		data['input'] = sentence
-		data['vader'] = vader(sentence)
-		data['textblob'] = textblob(sentence)
-		data['azure'] = azure_sentiment(sentence)
-		data['google'] = gcp_sentiment(sentence)
-		resp['results'] = data
-		return json.dumps(resp)
+		resp['results'].append(vader(sentence))
+		resp['results'].append(textblob(sentence))
+		resp['results'].append(azure_sentiment(sentence))
+		resp['results'].append(gcp_sentiment(sentence))
 	elif (model == 'azure'):
-		return azure_sentiment(sentence)
+		resp['results'] = azure_sentiment(sentence)
 	elif (model == 'vader'):
-		return vader(sentence)
+		resp['results'] = vader(sentence)
 	elif (model == 'textblob'):
-		return textblob(sentence)
+		resp['results'] = textblob(sentence)
 	elif (model == 'google'):
-		return gcp_sentiment(sentence)
+		resp['results'] = gcp_sentiment(sentence)
 	else:
+		# flag error 
 		return 'No Model exists for '+model
+	return json.dumps(resp)
 
 def textblob(sentence):
 	resp = {}

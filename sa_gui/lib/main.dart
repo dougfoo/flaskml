@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,35 +29,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  String getSentiment(num score) {
+    // order of these is important
+    if (score < -0.75) 
+      return 'Very Negative';
+    if (score < -0.25)
+      return 'Negative';
+    if (score > 0.75)
+      return 'Very Positive';
+    if (score > 0.25)
+      return 'Positive';
+    if (score >= -.25 && score <= 0.25)
+      return 'Neutral';
+    else
+      return 'Unclear Sentiment: '+score.toStringAsFixed(4);
+  }
+
+
+  _launchURL() async {
+    const url = 'https://google.com.br';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   void _showHelp() {
     print('showHelp clicked');
     setState(() {
-      _counter++;
+//      _counter++;
     });
   }
 
   void _submit() async {
     print('submit clicked');
+    dataList.clear();
     // need to swap out hostname
-    var host = '10.0.2.2';
+    var host = '10.0.2.2';   // for android emulator
+    //    var host = '127.0.0.1';   // for web testing
     var response = await http.get('http://'+host+':5000/nlp/sa/all?data='+inputController.text);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
     print(inputController.text);
-    
-    dataList.add({"Model": "Foo", "Raw Score": ".67", "Sentiment": "Positive", "More Info": "Link to Google"});
 
+    var resp = response.body;
+    Map<String, dynamic> nlps = jsonDecode(resp);
+    var inputStr = nlps['input'];
+    List<dynamic> results = nlps['results'];
+
+    results.forEach((result) {
+      dataList.add(result);
+    });
     setState(() { });  // drive update to GUI
   }
 
   final inputController = TextEditingController();
 
-  final List<Map<String, String>> dataList = [
-    {"Model": "BERT", "Raw Score": "1", "Sentiment": "Very Positive", "More Info": "Link to BERT"},
-    {"Model": "Azure", "Raw Score": ".8", "Sentiment": "Postitive", "More Info": "Link to MSFT"},
-    {"Model": "Google", "Raw Score": ".7", "Sentiment": "Positive", "More Info": "Link to Google"},
+  final List<Map<String, dynamic>> dataList = [
   ];
 
   @override
@@ -109,22 +140,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column (
                   children: <Widget>[
                     ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 600),
+                      constraints: BoxConstraints(minWidth: 370),
                       child: DataTable(
                           columns: [
-                            DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0), )),
-                            DataColumn(label: Text('Raw Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),), numeric: true),
-                            DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
-                            DataColumn(label: Text('More Info', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 15.0),)),
+                            DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
+                            DataColumn(label: Text('Raw', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),), numeric: true),
+                            DataColumn(label: Text('Adj', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+                            DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+                            DataColumn(label: Text('Extra', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
                           ],
                           rows:
                             dataList // Loops through dataColumnText, each iteration assigning the value to element
                               .map(((element) => DataRow(
                                 cells: <DataCell>[
-                                  DataCell(Text(element["Model"])), //Extracting from Map element the value
-                                  DataCell(Text(element["Raw Score"])),
-                                  DataCell(Text(element["Sentiment"])),
-                                  DataCell(Text(element["More Info"])),
+                                  DataCell(Text(element["model"])), //Extracting from Map element the value
+                                  DataCell(Text(element["rScore"].toStringAsFixed(4))),
+                                  DataCell(Text(element["nScore"].toStringAsFixed(4))),
+                                  DataCell(Text(getSentiment(element["nScore"]))),
+                                  DataCell(
+                                      GestureDetector(
+                                          child: Text("Link", style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
+                                          onTap: _launchURL
+                                      )
+                                  ),
                                 ],
                               )),
                             ).toList(),
