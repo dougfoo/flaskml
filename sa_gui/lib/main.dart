@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sentiment Analysis Runner',
+      title: 'Foo Sentiment Analysis Runner',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Sentiment Analysis Home Page'),
+      home: MyHomePage(title: 'Foo Sentiment Analysis Home Page'),
     );
   }
 }
@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //          crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(padding: EdgeInsets.only(top: 20.0)),
-              Text('Sentiment Multi Analyzer',
+              Text('Foo Sentiment Multi Analyzer',
                 style: new TextStyle(color: Colors.blue, fontSize: 25.0),),
               Padding(padding: EdgeInsets.only(top: 25.0)),
               Padding(
