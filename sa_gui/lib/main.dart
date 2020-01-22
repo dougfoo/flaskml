@@ -45,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
       return 'Unclear Sentiment: '+score.toStringAsFixed(4);
   }
 
-
   _launchURL() async {
     const url = 'https://google.com.br';
     if (await canLaunch(url)) {
@@ -64,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submit() async {
     print('submit clicked');
-    dataList.clear();
+    print(colorList);
     // need to swap out hostname
     //   var host = '10.0.2.2:5000';   // for android emulator
     //   var host = '127.0.0.1:5000';   // for web testing
@@ -76,19 +75,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var resp = response.body;
     Map<String, dynamic> nlps = jsonDecode(resp);
-    var inputStr = nlps['input'];
     List<dynamic> results = nlps['results'];
+
+    List<Map<String, dynamic>> dataList = [];
 
     results.forEach((result) {
       dataList.add(result);
     });
-    setState(() { });  // drive update to GUI
+
+    colorList.add(Colors.green[50]);
+
+    Container container = buildContainer(dataList, colorList.length-1);
+    contentList.add(container);
+    inputController.text = '';
+
+    FocusScope.of(context).requestFocus(FocusNode());
+    setState(() {
+      for (var i=0; i<colorList.length; i++) {
+        colorList[i] = Colors.grey;
+      }
+    });
   }
 
   final inputController = TextEditingController();
-
-  final List<Map<String, dynamic>> dataList = [
-  ];
+  final List<Widget> contentList = [];
+  final List<Color> colorList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +124,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: TextFormField(
                   controller: inputController,
                   maxLines: 3,
+                  onFieldSubmitted: (term) {
+                    print('what is this '+ term);
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                  textInputAction: TextInputAction.done,
                   decoration: new InputDecoration(
                     labelText: "New Text to Analyze",
                     fillColor: Colors.white,
@@ -135,44 +151,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(padding: EdgeInsets.only(top: 22.0)),
               Text('Results',
                 style: new TextStyle(color: Colors.blue, fontSize: 15.0),),
-              Container(
-                margin: new EdgeInsets.all(10.0),
-                color: Colors.green[50],
-                child: Column (
-                  children: <Widget>[
-                    ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 370),
-                      child: DataTable(
-                          columns: [
-                            DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
-                            DataColumn(label: Text('Raw', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),), numeric: true),
-                            DataColumn(label: Text('Adj', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
-                            DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
-                            DataColumn(label: Text('Extra', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
-                          ],
-                          rows:
-                            dataList // Loops through dataColumnText, each iteration assigning the value to element
-                              .map(((element) => DataRow(
-                                cells: <DataCell>[
-                                  DataCell(Text(element["model"])), //Extracting from Map element the value
-                                  DataCell(Text(element["rScore"].toStringAsFixed(4))),
-                                  DataCell(Text(element["nScore"].toStringAsFixed(4))),
-                                  DataCell(Text(getSentiment(element["nScore"]))),
-                                  DataCell(
-                                      GestureDetector(
-                                          child: Text("Link", style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
-                                          onTap: _launchURL
-                                      )
-                                  ),
-                                ],
-                              )),
-                            ).toList(),
-                      ),
-                    ),
-                    Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
-                    Text(inputController.text, style: new TextStyle(color: Colors.orange, fontStyle: FontStyle.italic, fontSize: 15.0),),
-                  ],
-                ),
+              Wrap(
+                direction: Axis.horizontal,
+                children: contentList,
               )
             ],
           ),
@@ -184,6 +165,43 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Help',
         child: Icon(Icons.help),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Container buildContainer(List<Map<String, dynamic>> dataList, num ind) {
+    return Container(
+      margin: new EdgeInsets.all(10.0),
+      color: colorList[ind],
+      child: Column (
+        children: <Widget>[
+          ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 250),
+            child: DataTable(
+              columns: [
+                DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
+                DataColumn(label: Text('Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+                DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+              ],
+              rows:
+              dataList // Loops through dataColumnText, each iteration assigning the value to element
+                  .map(((element) => DataRow(
+                cells: <DataCell>[
+                  DataCell(
+                    GestureDetector(
+                      child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
+                      onTap: _launchURL)
+                  ), //Extracting from Map element the value
+                  DataCell(Text(element["nScore"].toStringAsFixed(4))),
+                  DataCell(Text(getSentiment(element["nScore"]))),
+                ],
+              )),
+              ).toList(),
+            ),
+          ),
+          Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
+          Text(inputController.text, style: new TextStyle(color: Colors.orange, fontStyle: FontStyle.italic, fontSize: 15.0),),
+        ],
+      ),
     );
   }
 }
