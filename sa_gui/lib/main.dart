@@ -21,6 +21,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//class Results {
+//  bool enabled;
+//  String model;
+//  String input;
+//  num nScore;
+//  num rScore;
+//
+//  Results(this.enabled,this.model,this.input,this.nScore,this.rScore);
+//}
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
@@ -63,8 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submit() async {
     print('submit clicked');
-    print(colorList);
-    // need to swap out hostname
+    // need to swap out hostname for dev cycle or make parametized
     //   var host = '10.0.2.2:5000';   // for android emulator
     //   var host = '127.0.0.1:5000';   // for web testing
     var host = 'flaskmli.azurewebsites.net';   // prod host
@@ -83,23 +92,16 @@ class _MyHomePageState extends State<MyHomePage> {
       dataList.add(result);
     });
 
-    colorList.add(Colors.green[50]);
-
-    Container container = buildContainer(dataList, colorList.length-1);
-    contentList.add(container);
+    rawContentList.add([dataList, inputController.text]);   // hack to add tuple for now to pass search text
     inputController.text = '';
 
     FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
-      for (var i=0; i<colorList.length; i++) {
-        colorList[i] = Colors.grey;
-      }
     });
   }
 
   final inputController = TextEditingController();
-  final List<Widget> contentList = [];
-  final List<Color> colorList = [];
+  final List rawContentList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: new TextStyle(color: Colors.blue, fontSize: 15.0),),
               Wrap(
                 direction: Axis.horizontal,
-                children: contentList,
+                children: rawContentList.asMap().map((index, item) => MapEntry(index, buildContainer(item[0],item[1], index))).values.toList(),
               )
             ],
           ),
@@ -168,10 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Container buildContainer(List<Map<String, dynamic>> dataList, num ind) {
+  Container buildContainer(List<Map<String, dynamic>> resultList, String inputText, num index) {
     return Container(
       margin: new EdgeInsets.all(10.0),
-      color: colorList[ind],
+      color: index == 0 ? Colors.green[50] : Colors.grey[100],
       child: Column (
         children: <Widget>[
           ConstrainedBox(
@@ -183,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
               ],
               rows:
-              dataList // Loops through dataColumnText, each iteration assigning the value to element
+              resultList // Loops through dataColumnText, each iteration assigning the value to element
                   .map(((element) => DataRow(
                 cells: <DataCell>[
                   DataCell(
@@ -199,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
-          Text(inputController.text, style: new TextStyle(color: Colors.orange, fontStyle: FontStyle.italic, fontSize: 15.0),),
+          Text(inputText, style: new TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15.0),),
         ],
       ),
     );

@@ -154,6 +154,23 @@ def azure_sentiment(text):
 
 	return resp
 
+# all from scratch
+#   - tokentize
+#   - lemmitize
+#   - stem
+#   - pos
+#   - word vector ?
+#   - need some pre labeled data to train with
+###
+def custom_nlp(text):
+
+	return None
+
+# bert on azure (costly)
+## 
+def bert(text):
+	return None
+
 
 if __name__ == '__main__':
     app.run(debug=True)
