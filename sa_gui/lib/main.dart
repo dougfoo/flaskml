@@ -64,11 +64,27 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _showHelp2() {
+    print('showHelp clicked');
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: new Text("About this Model"),
+      content: new Text("In depth information coming -- once I fix the url_launcher_web for flutter"),
+    )
+    );
+
+    setState(() {});
+  }
+
+
   void _showHelp() {
     print('showHelp clicked');
-    setState(() {
-//      _counter++;
-    });
+    showDialog(context: context, builder: (_) => AlertDialog(
+        title: new Text("About Foo NLP SA"),
+        content: new Text("Foo NLP Sentiment Analyzer combines sentiment scores from multiple engines to provide a cross comparison of NLP Sentiment Analysis models including our own proprietary and top secret Foo SA model"),
+      )
+    );
+
+    setState(() {});
   }
 
   void _submit() async {
@@ -92,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
       dataList.add(result);
     });
 
-    rawContentList.add([dataList, inputController.text]);   // hack to add tuple for now to pass search text
+    rawContentList.insert(0,[dataList, inputController.text]);   // hack to add tuple for now to pass search text
     inputController.text = '';
 
     FocusScope.of(context).requestFocus(FocusNode());
@@ -191,7 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   DataCell(
                     GestureDetector(
                       child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
-                      onTap: _launchURL)
+                      onTap: _showHelp2)
                   ), //Extracting from Map element the value
                   DataCell(Text(element["nScore"].toStringAsFixed(4))),
                   DataCell(Text(getSentiment(element["nScore"]))),
