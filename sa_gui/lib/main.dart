@@ -198,38 +198,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Container buildContainer(List<Map<String, dynamic>> resultList, String inputText, num index) {
     return Container(
+      width: 400,
       margin: new EdgeInsets.all(10.0),
       color: index == 0 ? Colors.green[50] : Colors.grey[100],
       child: Column (
         children: <Widget>[
-          ConstrainedBox(
-            constraints: BoxConstraints(minWidth: 250),
-            child: DataTable(
-              columns: [
-                DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
-                DataColumn(label: Text('Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
-                DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+          DataTable(
+            columns: [
+              DataColumn(label: Text('Model', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0), )),
+              DataColumn(label: Text('Score', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+              DataColumn(label: Text('Sentiment', style: new TextStyle(fontWeight: FontWeight.bold, color:Colors.blue, fontSize: 12.0),)),
+            ],
+            rows:
+            resultList // Loops through dataColumnText, each iteration assigning the value to element
+                .map(((element) => DataRow(
+              cells: <DataCell>[
+                DataCell(
+                  GestureDetector(
+                    child: Tooltip(
+                      message: 'Click for model details',
+                        verticalOffset: 12,
+                        height: 24,
+                        child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue))),
+                    onTap: () => _launchURL(getModelUrl(element["model"]))
+                  )
+                ), //Extracting from Map element the value
+                DataCell(Text(element["nScore"].toStringAsFixed(4))),
+                DataCell(Text(getSentiment(element["nScore"]))),
               ],
-              rows:
-              resultList // Loops through dataColumnText, each iteration assigning the value to element
-                  .map(((element) => DataRow(
-                cells: <DataCell>[
-                  DataCell(
-                    GestureDetector(
-                      child: Tooltip(
-                        message: 'Click for model details',
-                          verticalOffset: 12,
-                          height: 24,
-                          child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue))),
-                      onTap: () => _launchURL(getModelUrl(element["model"]))
-                    )
-                  ), //Extracting from Map element the value
-                  DataCell(Text(element["nScore"].toStringAsFixed(4))),
-                  DataCell(Text(getSentiment(element["nScore"]))),
-                ],
-              )),
-              ).toList(),
-            ),
+            )),
+            ).toList(),
           ),
           Text('Evaluated: ',  style: new TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 15.0),),
           Text(inputText, style: new TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 15.0),),
