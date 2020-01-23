@@ -55,8 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return 'Unclear Sentiment: '+score.toStringAsFixed(4);
   }
 
-  _launchURL() async {
-    const url = 'https://google.com.br';
+  void _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -64,23 +63,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _showHelp2() {
-    print('showHelp clicked');
-    showDialog(context: context, builder: (_) => AlertDialog(
-      title: new Text("About this Model"),
-      content: new Text("In depth information coming -- once I fix the url_launcher_web for flutter"),
-    )
-    );
+  // to be replaced by source elements["url"]
+  final modelUrls = {
+    "Vader" : "https://pypi.org/project/vaderSentiment/",
+    "TextBlob" : "https://textblob.readthedocs.io/en/dev/",
+    "Azure NLP" : "https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/",
+    "Google NLP" : "https://cloud.google.com/natural-language/",
+  };
 
-    setState(() {});
+  String getModelUrl(String model) {
+    if (modelUrls.containsKey(model)) {
+      return modelUrls[model];
+    }
+    else {
+      return "http://foostack.ai";
+    }
   }
-
 
   void _showHelp() {
     print('showHelp clicked');
     showDialog(context: context, builder: (_) => AlertDialog(
         title: new Text("About Foo NLP SA"),
-        content: new Text("Foo NLP Sentiment Analyzer combines sentiment scores from multiple engines to provide a cross comparison of NLP Sentiment Analysis models including our own proprietary and top secret Foo SA model"),
+        content: new Text("Foo NLP Sentiment Analyzer combines sentiment scores from multiple " +
+        "engines to provide a cross comparison of NLP Sentiment Analysis models including our " +
+        "own proprietary and top secret Foo SA model.  Click on the individual model links in results for " +
+        "more information on the specific model parameters and design."),
       )
     );
 
@@ -139,24 +146,27 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(padding: EdgeInsets.only(top: 25.0)),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: inputController,
-                  maxLines: 3,
-                  onFieldSubmitted: (term) {
-                    print('what is this '+ term);
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                  textInputAction: TextInputAction.done,
-                  decoration: new InputDecoration(
-                    labelText: "New Text to Analyze",
-                    fillColor: Colors.white,
-                    border: new OutlineInputBorder(
-                      borderRadius: new BorderRadius.circular(25.0),
-                      borderSide: new BorderSide(
+                child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 600),
+                  child: TextFormField(
+                    controller: inputController,
+                    maxLines: 3,
+                    onFieldSubmitted: (term) {
+                      print('what is this '+ term);
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                    textInputAction: TextInputAction.done,
+                    decoration: new InputDecoration(
+                      labelText: "New Text to Analyze",
+                      fillColor: Colors.white,
+                      border: new OutlineInputBorder(
+                        borderRadius: new BorderRadius.circular(25.0),
+                        borderSide: new BorderSide(
+                        ),
                       ),
-                    ),
-                    //fillColor: Colors.green
-                  )
+                      //fillColor: Colors.green
+                    )
+                  ),
                 ),
               ),
                FlatButton (
@@ -206,8 +216,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 cells: <DataCell>[
                   DataCell(
                     GestureDetector(
-                      child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue)),
-                      onTap: _showHelp2)
+                      child: Tooltip(
+                        message: 'Click for model details',
+                          verticalOffset: 12,
+                          height: 24,
+                          child: Text(element["model"], style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue))),
+                      onTap: () => _launchURL(getModelUrl(element["model"]))
+                    )
                   ), //Extracting from Map element the value
                   DataCell(Text(element["nScore"].toStringAsFixed(4))),
                   DataCell(Text(getSentiment(element["nScore"]))),

@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, url_for, flash, jsonify
-import numpy as np
 from sklearn.externals import joblib
 from flask_cors import CORS
 from textblob import TextBlob
@@ -91,7 +90,8 @@ def sa_predict(model):
 def textblob(sentence):
 	resp = {}
 	resp['model'] = 'TextBlob'
-	resp['extra'] = 'https://textblob.readthedocs.io/en/dev/ - models returns -1 to +1'
+	resp['extra'] = 'models returns -1 to +1'
+	resp['url'] = 'https://textblob.readthedocs.io/en/dev/'
 	# create TextBlob object of passed tweet text
 	analysis = TextBlob(sentence)
 	resp['rScore'] = analysis.sentiment.polarity
@@ -102,7 +102,8 @@ def textblob(sentence):
 def vader(sentence):
 	resp = {}
 	resp['model'] = 'Vader'
-	resp['extra'] = 'https://pypi.org/project/vaderSentiment/ - model returns -1 to +1'
+	resp['extra'] = 'model returns -1 to +1'
+	resp['url'] = 'https://pypi.org/project/vaderSentiment/'
 	analyser = SentimentIntensityAnalyzer()
 	score = analyser.polarity_scores(sentence)['compound'] 
 	resp['rScore'] = score
@@ -117,7 +118,8 @@ def vader(sentence):
 def gcp_sentiment(text):
 	resp = {}
 	resp['model'] = 'Google NLP'
-	resp['extra'] = 'https://cloud.google.com/natural-language/ - model returns -1 to +1'
+	resp['extra'] = 'model returns -1 to +1'
+	resp['url'] = 'https://cloud.google.com/natural-language/'
 
 	gcp_url = "https://language.googleapis.com/v1/documents:analyzeSentiment?key=AIzaSyBN-SLv7YPAMARDo2eQl7Y_yyy84xpWcHU"
 
@@ -135,7 +137,8 @@ def gcp_sentiment(text):
 def azure_sentiment(text):
 	resp = {}
 	resp['model'] = 'Azure NLP'
-	resp['extra'] = 'https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/ - model returns 0 to 1'
+	resp['extra'] = 'model returns 0 to 1'
+	resp['url'] = 'https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/'
 
 	documents = {'documents': [
 		{'id': '1', 'text': text}
@@ -155,12 +158,15 @@ def azure_sentiment(text):
 	return resp
 
 # all from scratch
-#   - tokentize
-#   - lemmitize
+#   - tokenize
+#   - general cleanup
 #   - stem
-#   - pos
+#   - lemmitize
+#   - stopwords
+#   - pos tagging ? (spacy)
+#   - named entity recognition (NER) -- not needed
 #   - word vector ?
-#   - need some pre labeled data to train with
+#   - sa lexicon ?  stanford?  which ?
 ###
 def custom_nlp(text):
 
