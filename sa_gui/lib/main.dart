@@ -4,10 +4,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(MyNLPApp());
 
-class MyApp extends StatelessWidget {
+class MyNLPApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -21,16 +22,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//class Results {
-//  bool enabled;
-//  String model;
-//  String input;
-//  num nScore;
-//  num rScore;
-//
-//  Results(this.enabled,this.model,this.input,this.nScore,this.rScore);
-//}
-
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
@@ -39,6 +30,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final Firestore _firestore = Firestore.instance;
+
+  Future<void> saveToFirestore(String text) async {
+    if (text.length > 0) {
+      print('save to firestore 2 ' + text);
+      await _firestore.collection('queries').add({
+        'text': text,
+        'from': 'Anonymous',
+        'date': DateTime.now().toIso8601String().toString(),
+      });
+    }
+  }
+
   String getSentiment(num score) {
     // order of these is important
     if (score < -0.75) 
@@ -115,6 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
       dataList.add(result);
     });
 
+    saveToFirestore(inputController.text);
+
     rawContentList.insert(0,[dataList, inputController.text]);   // hack to add tuple for now to pass search text
     inputController.text = '';
 
@@ -134,11 +140,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
-
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-//          crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(padding: EdgeInsets.only(top: 20.0)),
               Text('Foo Sentiment Multi Analyzer',
