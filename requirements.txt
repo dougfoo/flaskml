@@ -5,6 +5,7 @@ lightgbm==2.0.12
 flask==1.0.2
 google==2.0.3
 google-cloud==0.34.0
+google-cloud-firestore==1.6.1
 numpy==1.16.4
 numpydoc==0.8.0
 scikit-image==0.14.2
